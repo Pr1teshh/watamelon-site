@@ -15,11 +15,8 @@ function doPost(e) {
   // Bots fill the hidden "_honey" field; real visitors never see it.
   if (p._honey) return reply_('ignored');
 
-  const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
   try {
-    const sheet = getSheet_();
-    sheet.appendRow([
+    getSheet_().appendRow([
       new Date(),
       clean_(p.name),
       clean_(p.email),
@@ -29,8 +26,9 @@ function doPost(e) {
       clean_(p.brief),
       clean_(p.page),
     ]);
-  } finally {
-    lock.releaseLock();
+  } catch (err) {
+    console.error(err);
+    return reply_('error: ' + err.message);
   }
   return reply_('ok');
 }
