@@ -220,6 +220,19 @@
     data.set("services", services.join(", ") || "Not specified");
 
     btn.disabled = true; btn.textContent = "Sending…";
+
+    // Also save a row in the Google Sheet (set data-sheet-url on the form).
+    // Runs alongside the email and never blocks it.
+    const sheetUrl = form.dataset.sheetUrl;
+    if (sheetUrl) {
+      const row = new URLSearchParams();
+      ["name", "email", "company", "website", "services", "brief", "_honey"].forEach((k) =>
+        row.set(k, data.get(k) || "")
+      );
+      row.set("page", location.href);
+      fetch(sheetUrl, { method: "POST", mode: "no-cors", body: row }).catch(() => {});
+    }
+
     try {
       const res = await fetch(form.action.replace("formsubmit.co/", "formsubmit.co/ajax/"), {
         method: "POST",

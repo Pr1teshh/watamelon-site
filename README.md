@@ -53,6 +53,21 @@ After the site is live, send yourself one test enquiry. FormSubmit emails you an
 
 To change the receiving email, edit the `action="https://formsubmit.co/…"` line in `index.html`.
 
+## 6. Save enquiries to a Google Sheet (optional)
+
+Every enquiry is still emailed. This also adds it as a row in a Google Sheet.
+
+1. Create a new Google Sheet (sheets.new), name it e.g. "Watamelon enquiries".
+2. **Extensions → Apps Script**. Delete what's there, paste in everything from `google-sheet/Code.gs`, click **Save**.
+3. **Deploy → New deployment** → gear icon → **Web app**.
+   - Execute as: **Me**
+   - Who has access: **Anyone**
+   → **Deploy** → approve the permissions (Google may say "unverified app": **Advanced → Go to … (unsafe)**; it's your own script).
+4. Copy the **Web app URL** (ends in `/exec`).
+5. In `index.html`, paste it into `data-sheet-url=""` on the `<form>` line, commit and push.
+
+The rows land in a tab called **Enquiries**. If you edit the script later, use **Deploy → Manage deployments → Edit → New version** so the URL stays the same.
+
 ## Quick edits
 
 - **Text:** search for the text in `index.html` and change it.
