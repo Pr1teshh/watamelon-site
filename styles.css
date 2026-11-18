@@ -662,3 +662,39 @@ img.footer-big { display: block; width: min(100%, 520px); height: auto; margin: 
 .product-media { aspect-ratio: 3 / 2; }
 .product-media img { object-position: center top; }
 .product-badge { top: auto; bottom: 12px; left: 12px; }
+
+/* ---------- Free Website Score teaser ---------- */
+.score-teaser { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+.score-teaser-copy > p:not(.eyebrow) { color: var(--muted-fg); max-width: 480px; margin: 0 0 28px; }
+.score-teaser-form { display: flex; gap: 10px; max-width: 520px; }
+.score-teaser-form input {
+  flex: 1; min-width: 0; background: #121110; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--fg); font: inherit; font-size: 16px; padding: 14px 22px; outline: none; transition: border-color .2s;
+}
+.score-teaser-form input:focus { border-color: var(--primary); }
+.score-teaser-form input::placeholder { color: #4a4640; }
+.score-teaser-points { list-style: none; padding: 0; margin: 20px 0 0; display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted-fg); }
+.score-teaser-points li::before { content: "● "; color: var(--primary); }
+
+.score-card { padding: clamp(24px, 3vw, 36px); border: 1px solid var(--line); border-radius: 24px; background: #121110; }
+.score-card-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted-fg); margin: 0 0 20px; }
+.score-card-top { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
+.score-card-ring {
+  flex: none; width: 112px; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; position: relative;
+  background: conic-gradient(#9bd86a calc(var(--p) * 1%), var(--line) 0);
+}
+.score-card-ring::before { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: #121110; }
+.score-card-ring strong { position: relative; font-family: var(--serif); font-weight: 400; font-size: 48px; line-height: 1; }
+.score-card-top h3 { font-size: 36px; line-height: 1; margin-bottom: 6px; }
+.score-card-top p { margin: 0; color: var(--muted-fg); font-size: 14px; }
+.score-card-row { display: grid; grid-template-columns: 110px 1fr 36px; gap: 14px; align-items: center; font-size: 14px; padding: 8px 0; }
+.score-card-row i { height: 8px; border-radius: 999px; background: linear-gradient(90deg, var(--primary) var(--w), var(--line) var(--w)); }
+.score-card-row b { font-family: var(--mono); font-weight: 500; text-align: right; }
+.score-card-fix { margin: 20px 0 0; padding-top: 18px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted-fg); }
+.score-card-fix .mono { display: block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--primary); margin-bottom: 6px; }
+
+@media (max-width: 860px) {
+  .score-teaser { grid-template-columns: 1fr; }
+  .score-teaser-form { flex-direction: column; }
+  .score-teaser-form .btn { width: 100%; }
+}
