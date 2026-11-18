@@ -68,6 +68,25 @@ Every enquiry is still emailed. This also adds it as a row in a Google Sheet.
 
 The rows land in a tab called **Enquiries**. If you edit the script later, use **Deploy → Manage deployments → Edit → New version** so the URL stays the same.
 
+## 7. Free Website Score (lead magnet)
+
+`/score` lets a visitor enter any website and get an overall score out of 100 plus three sub-scores:
+**Conversion** (40%), **User-friendly** (35%) and **Creativity** (25%). The overall score is shown straight
+away; the three scores, all 26 checks and the top 3 fixes unlock after they enter their email.
+
+```
+score.html / score.css / score.js   ← the page
+api/score.js                        ← Vercel function that fetches and scores a site
+api/_lib/rubric.js                  ← the scoring rules: every check, its weight and its tip
+api/_lib/fetch-page.js              ← safe page fetching (blocks private/internal addresses)
+```
+
+- **Leads** go to the **Score leads** tab of the same Google Sheet (needs the updated `google-sheet/Code.gs`
+  deployed as a new version, see section 6) and you get an email per lead via FormSubmit.
+- **Tuning the score:** change weights or wording in `api/_lib/rubric.js`. Each pillar's weights add up to 100.
+- It's an automated scan of the homepage's code. Sites built entirely in JavaScript show less in their raw
+  code, and the page tells the visitor when that happens.
+
 ## Quick edits
 
 - **Text:** search for the text in `index.html` and change it.

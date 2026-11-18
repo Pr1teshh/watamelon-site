@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Website Score — How juicy is your website? | Watamelon</title>
+  <meta name="description" content="Free website score: see how conversion-focused, user-friendly and creative your website is in 10 seconds, with fixes you can act on." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="How juicy is your website? Get a free score" />
+  <meta property="og:description" content="Conversion, user-friendliness and creativity — scored in 10 seconds, with fixes you can act on." />
+  <meta property="og:url" content="https://heyywatamelon.in/score" />
+  <meta name="theme-color" content="#080706" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="score.css" />
+</head>
+<body class="score-page">
+
+  <header class="nav scrolled" id="nav">
+    <div class="container nav-inner">
+      <a href="/" class="logo" aria-label="Watamelon home"><img src="assets/logo-inverse.svg" alt="Watamelon" width="68" height="34" /></a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="/#work">Work</a>
+        <a href="/#services">Services</a>
+        <a href="#how">How we score</a>
+      </nav>
+      <a href="/#start" class="btn btn-primary btn-sm nav-cta">Get in Touch</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ HERO + URL FORM ============ -->
+    <section class="section sc-hero">
+      <div class="container">
+        <p class="eyebrow"><span class="pulse-dot"></span>Free tool · 10 seconds</p>
+        <h1>How <em>juicy</em> is your website?</h1>
+        <p class="sc-lede">Get a score for how well your site turns visitors into customers, how easy it is to use, and how creative it feels — plus the fixes that matter most.</p>
+
+        <form class="sc-url" id="url-form" novalidate>
+          <label class="sr-only" for="url-input">Your website address</label>
+          <input id="url-input" name="url" type="text" inputmode="url" autocomplete="url" placeholder="yourwebsite.com" required />
+          <button class="btn btn-primary btn-lg" type="submit" id="url-btn">Score my site →</button>
+        </form>
+        <p class="sc-hint mono" id="url-hint">We read your public homepage only. Nothing is changed.</p>
+      </div>
+    </section>
+
+    <!-- ============ LOADING ============ -->
+    <section class="section sc-loading" id="loading" hidden>
+      <div class="container">
+        <div class="sc-melon" aria-hidden="true"><span></span></div>
+        <p class="mono" id="loading-text" role="status">Slicing open your homepage…</p>
+      </div>
+    </section>
+
+    <!-- ============ RESULT ============ -->
+    <section class="section sc-result" id="result" hidden>
+      <div class="container">
+        <p class="eyebrow">— Your website score</p>
+        <div class="sc-top">
+          <div class="sc-ring" id="ring" style="--p:0">
+            <div><strong id="overall">0</strong><span>/100</span></div>
+          </div>
+          <div class="sc-verdict">
+            <p class="mono sc-site" id="site-name"></p>
+            <h2 id="band-name">—</h2>
+            <p id="band-note"></p>
+            <p class="sc-limited" id="limited" hidden>Heads up: this site builds most of its content with JavaScript, so our quick scan saw less than a visitor does. The real score may be higher.</p>
+          </div>
+        </div>
+
+        <div class="sc-pillars" id="pillars">
+          <div class="sc-pillar" data-key="conversion"><span>Conversion</span><div class="bar"><i></i></div><b>··</b></div>
+          <div class="sc-pillar" data-key="ux"><span>User-friendly</span><div class="bar"><i></i></div><b>··</b></div>
+          <div class="sc-pillar" data-key="creative"><span>Creativity</span><div class="bar"><i></i></div><b>··</b></div>
+        </div>
+
+        <!-- Email gate: the breakdown unlocks after this -->
+        <div class="sc-gate" id="gate">
+          <div>
+            <h3>Unlock your full report</h3>
+            <p>See your three scores, all 26 checks, and the top fixes for your site. Free.</p>
+          </div>
+          <form id="lead-form" class="sc-lead" novalidate>
+            <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <label>Email *<input type="email" name="email" autocomplete="email" required placeholder="you@brand.com" /></label>
+            <label>Name<input type="text" name="name" autocomplete="name" placeholder="Optional" /></label>
+            <button class="btn btn-primary" type="submit">Show my report →</button>
+            <p class="sc-fine">We'll send you your report and the occasional website tip. Unsubscribe anytime.</p>
+            <p class="form-status mono" id="lead-status" role="status"></p>
+          </form>
+        </div>
+
+        <!-- Full report (shown after email) -->
+        <div class="sc-report" id="report" hidden>
+          <h3 class="sc-h3">Top fixes for your site</h3>
+          <ol class="sc-fixes" id="fixes"></ol>
+          <div class="sc-groups" id="groups"></div>
+          <div class="cta-strip sc-cta">
+            <h2>Want it <em>fixed</em>?</h2>
+            <p>We design websites that score high and sell more. Tell us about your brand — we reply within 24 hours.</p>
+            <a href="/#start" class="btn btn-primary">Book a free call →</a>
+          </div>
+          <p class="sc-again"><button class="btn btn-ghost btn-md" type="button" id="again">Score another site</button></p>
+        </div>
+
+        <p class="sc-error" id="error" role="alert" hidden></p>
+      </div>
+    </section>
+
+    <!-- ============ HOW WE SCORE ============ -->
+    <section class="section sc-how" id="how">
+      <div class="container">
+        <p class="eyebrow">— How we score</p>
+        <h2>Three scores. <em>26 checks.</em></h2>
+        <div class="sc-how-grid">
+          <article>
+            <p class="mono">40% of overall</p>
+            <h3>Conversion</h3>
+            <p>Does the page turn visitors into enquiries or sales? We look for one clear headline, action-led buttons near the top, several easy ways to get in touch, social proof, a short lead form, a sharp page description, trust basics and a fast server response.</p>
+          </article>
+          <article>
+            <p class="mono">35% of overall</p>
+            <h3>User-friendly</h3>
+            <p>Is it easy and fast to use, especially on a phone? We check mobile readiness, page weight, script load, image descriptions, heading structure, navigation, page title, labelled form fields, enough helpful content, language and favicon.</p>
+          </article>
+          <article>
+            <p class="mono">25% of overall</p>
+            <h3>Creativity</h3>
+            <p>Does it feel crafted rather than default? We look at distinctive typography, motion and interaction, rich visuals, a considered colour palette, modern layout techniques and whether it's more than a stock template.</p>
+          </article>
+        </div>
+        <p class="sc-note muted">This is an automated scan of your homepage's code: a quick, honest signal rather than a full audit. Taste can't be fully measured by a machine, which is exactly why we still do human reviews.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom mono">
+        <span>© <span id="year">2026</span> Watamelon</span>
+        <a href="/">heyywatamelon.in</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="score.js"></script>
+</body>
+</html>

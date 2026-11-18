@@ -8,6 +8,8 @@
 
 const SHEET_NAME = 'Enquiries';
 const HEADERS = ['Received', 'Name', 'Email', 'Company', 'Website', 'Services', 'Brief', 'Page'];
+const LEADS_SHEET = 'Score leads';
+const LEAD_HEADERS = ['Received', 'Email', 'Name', 'Website scored', 'Overall', 'Conversion', 'User-friendly', 'Creativity', 'Page'];
 
 function doPost(e) {
   const p = (e && e.parameter) || {};
@@ -16,7 +18,23 @@ function doPost(e) {
   if (p._honey) return reply_('ignored');
 
   try {
-    getSheet_().appendRow([
+    // Leads from the Website Score page go to their own tab.
+    if (p.type === 'lead') {
+      getSheet_(LEADS_SHEET, LEAD_HEADERS).appendRow([
+        new Date(),
+        clean_(p.email),
+        clean_(p.name),
+        clean_(p.website),
+        Number(p.overall) || '',
+        Number(p.conversion) || '',
+        Number(p.ux) || '',
+        Number(p.creative) || '',
+        clean_(p.page),
+      ]);
+      return reply_('ok');
+    }
+
+    getSheet_(SHEET_NAME, HEADERS).appendRow([
       new Date(),
       clean_(p.name),
       clean_(p.email),
@@ -38,13 +56,13 @@ function doGet() {
   return reply_('Watamelon form endpoint is running.');
 }
 
-function getSheet_() {
+function getSheet_(name, headers) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) sheet = ss.insertSheet(name);
   if (sheet.getLastRow() === 0) {
-    sheet.appendRow(HEADERS);
-    sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold');
+    sheet.appendRow(headers);
+    sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
     sheet.setFrozenRows(1);
   }
   return sheet;
