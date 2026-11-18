@@ -12,6 +12,7 @@ module.exports = async (req, res) => {
   try {
     const target = normalizeUrl(new URL(req.url, "http://x").searchParams.get("url"));
     const page = await fetchPage(target);
+    if ([401, 403, 429, 503].includes(page.status)) throw Object.assign(new Error("That website blocks automated checks, so we can't scan it. Try another site, or ask us for a human review."), { userFacing: true });
     if (page.status >= 400) throw Object.assign(new Error(`That website answered with an error (${page.status}).`), { userFacing: true });
     const type = String(page.headers["content-type"] || "");
     if (type && !/html/i.test(type)) throw Object.assign(new Error("That address isn't a web page."), { userFacing: true });
@@ -33,7 +34,7 @@ module.exports = async (req, res) => {
       html: page.body, css: inlineCss + "\n" + sheets.join("\n") + "\n" + hrefs.join("\n"),
       url: page.finalUrl, https: page.https, firstByteMs: page.firstByteMs, bytes: page.bytes,
     });
-    res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
+    res.setHeader("Cache-Control", "public, max-age=0, must-revalidate, s-maxage=3600, stale-while-revalidate=86400");
     res.end(JSON.stringify({ ...report, scannedAt: new Date().toISOString() }));
   } catch (e) {
     res.statusCode = e.userFacing ? 422 : 500;

@@ -82,7 +82,7 @@
         <div class="sc-gate" id="gate">
           <div>
             <h3>Unlock your full report</h3>
-            <p>See your three scores, all 26 checks, and the top fixes for your site. Free.</p>
+            <p>See your three scores, all 34 checks, and the top fixes for your site. Free.</p>
           </div>
           <form id="lead-form" class="sc-lead" novalidate>
             <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
@@ -96,14 +96,24 @@
 
         <!-- Full report (shown after email) -->
         <div class="sc-report" id="report" hidden>
-          <h3 class="sc-h3">Top fixes for your site</h3>
+          <h3 class="sc-h3" id="fixes-title">Top fixes for your site</h3>
           <ol class="sc-fixes" id="fixes"></ol>
-          <div class="sc-groups" id="groups"></div>
-          <div class="cta-strip sc-cta">
-            <h2>Want it <em>fixed</em>?</h2>
-            <p>We design websites that score high and sell more. Tell us about your brand — we reply within 24 hours.</p>
-            <a href="/#start" class="btn btn-primary">Book a free call →</a>
+          <div class="cta-strip sc-cta" id="cta">
+            <h2 id="cta-title">Want it <em>fixed</em>?</h2>
+            <p id="cta-text">We design websites that score high and sell more. Tell us about your brand — we reply within 24 hours.</p>
+            <a href="/#start" class="btn btn-primary" id="cta-btn">Book a free call →</a>
           </div>
+          <div class="sc-unseen">
+            <p class="mono">What a scan can't see</p>
+            <ul>
+              <li><b>Your words.</b> Does the headline make your ideal customer feel understood in 5 seconds?</li>
+              <li><b>Your offer.</b> Is it clear why someone should pick you over the next tab?</li>
+              <li><b>Your brand.</b> Does the site feel like you, or like a template?</li>
+            </ul>
+            <p>Code checks can't judge these, and they often matter most. A human review can.</p>
+          </div>
+          <h3 class="sc-h3">Every check</h3>
+          <div class="sc-groups" id="groups"></div>
           <p class="sc-again"><button class="btn btn-ghost btn-md" type="button" id="again">Score another site</button></p>
         </div>
 
@@ -115,17 +125,17 @@
     <section class="section sc-how" id="how">
       <div class="container">
         <p class="eyebrow">— How we score</p>
-        <h2>Three scores. <em>26 checks.</em></h2>
+        <h2>Three scores. <em>34 checks.</em></h2>
         <div class="sc-how-grid">
           <article>
             <p class="mono">40% of overall</p>
             <h3>Conversion</h3>
-            <p>Does the page turn visitors into enquiries or sales? We look for one clear headline, action-led buttons near the top, several easy ways to get in touch, social proof, a short lead form, a sharp page description, trust basics and a fast server response.</p>
+            <p>Does the page turn visitors into enquiries or sales? We look for one clear headline, action-led buttons near the top and always in reach, several ways to get in touch, social proof from real named people, a short lead form, visible pricing, an FAQ, link previews and rich Google results, trust basics and analytics to measure what works.</p>
           </article>
           <article>
             <p class="mono">35% of overall</p>
             <h3>User-friendly</h3>
-            <p>Is it easy and fast to use, especially on a phone? We check mobile readiness, page weight, script load, image descriptions, heading structure, navigation, page title, labelled form fields, enough helpful content, language and favicon.</p>
+            <p>Is it easy and fast to use, especially on a phone? We check mobile readiness, server speed, page weight, script load, image descriptions, lazy-loaded images, heading structure, navigation, page title, labelled form fields, enough helpful content, language and favicon.</p>
           </article>
           <article>
             <p class="mono">25% of overall</p>
@@ -133,7 +143,7 @@
             <p>Does it feel crafted rather than default? We look at distinctive typography, motion and interaction, rich visuals, a considered colour palette, modern layout techniques and whether it's more than a stock template.</p>
           </article>
         </div>
-        <p class="sc-note muted">This is an automated scan of your homepage's code: a quick, honest signal rather than a full audit. Taste can't be fully measured by a machine, which is exactly why we still do human reviews.</p>
+        <p class="sc-note muted">This is an automated scan of your homepage's code: a quick, honest signal rather than a full audit. The bar is set high on purpose: most websites land between 50 and 80, and passing 85 is rare. Taste, copy and offer can't be measured by a machine, which is exactly why we still do human reviews.</p>
       </div>
     </section>
   </main>

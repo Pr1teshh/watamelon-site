@@ -5,6 +5,34 @@
   const NOTIFY_URL = "https://formsubmit.co/ajax/Heyywatamelon@gmail.com";
   const PILLARS = { conversion: "Conversion", ux: "User-friendly", creative: "Creativity" };
 
+  // What we say after the report, by score band. High scores still get a reason to talk to us.
+  const BAND_COPY = {
+    low: {
+      fixes: "Fix these first",
+      title: "You're losing <em>visitors</em>.",
+      text: "Every gap above costs you enquiries. We can fix these in days, not months — tell us about your brand and we'll reply within 24 hours.",
+      btn: "Get these fixed →",
+    },
+    mid: {
+      fixes: "Your quickest wins",
+      title: "Let's make it <em>work harder</em>.",
+      text: "Good bones, leaky funnel. We'll fix the gaps above and turn more of your visitors into customers.",
+      btn: "Book a free call →",
+    },
+    good: {
+      fixes: "Your quickest wins",
+      title: "So close to <em>great</em>.",
+      text: "A few fixes stand between you and a site that sells on autopilot. We'll tell you exactly which ones are worth it.",
+      btn: "Book a free call →",
+    },
+    top: {
+      fixes: "What separates good from great",
+      title: "The code is good. Is the <em>message</em>?",
+      text: "A scan can't judge your copy, your offer or how your brand feels — and that's usually where top sites still leak sales. Get a free 15-minute human review.",
+      btn: "Book my free review →",
+    },
+  };
+
   const $ = (s, el = document) => el.querySelector(s);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const store = {
@@ -31,7 +59,7 @@
     loading.scrollIntoView({ behavior: "smooth", block: "center" });
 
     try {
-      const res = await fetch("/api/score?url=" + encodeURIComponent(url));
+      const res = await fetch("/api/score?url=" + encodeURIComponent(url), { cache: "no-cache" });
       const data = await res.json().catch(() => ({ error: "Something went wrong while scoring that site." }));
       if (!res.ok || data.error) throw new Error(data.error || "Something went wrong.");
       current = data;
@@ -64,6 +92,8 @@
       if (p < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
+    // if the tab is in the background, animations pause, so make sure the final number lands
+    setTimeout(() => { ring.style.setProperty("--p", d.overall); num.textContent = d.overall; }, 1000);
 
     const unlockedEmail = store.get("wm-score-email");
     if (unlockedEmail) { saveLead({ email: unlockedEmail, name: store.get("wm-score-name") || "" }); unlock(); }
@@ -92,7 +122,14 @@
       .sort((a, b) => b.gain - a.gain).slice(0, 3);
     $("#fixes").innerHTML = fixes.length
       ? fixes.map((c) => `<li><strong>${esc(c.label)}</strong><p>${esc(c.tip)}</p><span class="gain">+${Math.max(1, Math.round(c.gain))} overall points</span></li>`).join("")
-      : `<li><strong>Nothing major to fix</strong><p>Every check passed. Want a human eye on the details? Book a call below.</p></li>`;
+      : `<li><strong>Every automated check passed</strong><p>Rare! What's left is what a scan can't measure: your words, your offer and your brand. That's where a human review helps.</p></li>`;
+
+    const copy = BAND_COPY[(d.band && d.band.tier) || "mid"] || BAND_COPY.mid;
+    $("#fixes-title").textContent = copy.fixes;
+    $("#cta-title").innerHTML = copy.title;
+    $("#cta-text").textContent = copy.text;
+    $("#cta-btn").textContent = copy.btn;
+    $("#cta").classList.toggle("sc-cta-top", d.band.tier === "top");
 
     $("#groups").innerHTML = Object.entries(PILLARS).map(([key, name]) => {
       const list = d.checks.filter((c) => c.pillar === key);

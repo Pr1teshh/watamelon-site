@@ -72,7 +72,7 @@ The rows land in a tab called **Enquiries**. If you edit the script later, use *
 
 `/score` lets a visitor enter any website and get an overall score out of 100 plus three sub-scores:
 **Conversion** (40%), **User-friendly** (35%) and **Creativity** (25%). The overall score is shown straight
-away; the three scores, all 26 checks and the top 3 fixes unlock after they enter their email.
+away; the three scores, all 34 checks and the top 3 fixes unlock after they enter their email.
 
 ```
 score.html / score.css / score.js   ← the page

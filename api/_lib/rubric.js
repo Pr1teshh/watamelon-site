@@ -98,71 +98,107 @@ function analyze({ html, css = "", url, https, firstByteMs, bytes }) {
   const mediaKinds = [imgs.length >= 5, /<svg\b/i.test(body), /<video\b|youtube\.com\/embed|player\.vimeo/i.test(body), /<picture\b|srcset=/i.test(body)].filter(Boolean).length;
   const privacy = /href\s*=\s*["'][^"']*(privacy|terms|policy)/i.test(clean) || /privacy policy/i.test(text);
   const template = TEMPLATE_MARKERS.some((p) => p.test(html));
+  // growth signals
+  const metas = tags(head, "meta");
+  const ogImage = metas.some((t) => /property\s*=\s*["']?og:image/i.test(t) && attr(t, "content"));
+  const schema = /application\/ld\+json/i.test(html);
+  const tracking = /googletagmanager|gtag\(|google-analytics\.com|fbq\(|connect\.facebook\.net|clarity\.ms|hotjar|plausible\.io|posthog|cdn\.segment|_vercel\/insights|va\.vercel-scripts|umami/i.test(html);
+  const stickyCss = /position\s*:\s*(sticky|fixed)/i.test(all);
+  const headerHtml = [...blocks(clean, "header"), ...blocks(clean, "nav")].join(" ");
+  const stickyCta = (stickyCss && ctas.some((el) => headerHtml.includes(el))) || (hasContact.chat && stickyCss);
+  const pricing = /(₹|\$|€|£|\brs\.?\s?)\s?\d[\d,.]*|\bpric(e|es|ing)\b|starting (from|at)|\bper month\b/i.test(text);
+  const faq = /\bFAQs?\b|frequently asked|"FAQPage"/i.test(text + html) || tags(clean, "details").length >= 2;
+  const namedProof = proofHits > 0 && (/<cite\b|<figcaption\b|"author"\s*:/i.test(html) || /[”"]\s*(<[^>]+>\s*)*(—|–)\s*[A-Z][\p{L}]+/u.test(clean));
+  const lazyImgs = imgs.filter((t) => /loading\s*=\s*["']?lazy/i.test(t)).length;
 
   const C = (id, pillar, weight, label, value, tip, detail) => ({ id, pillar, weight, label, value: clamp01(value), tip, detail });
   const checks = [
     // ---------------- Conversion (100) ----------------
-    C("headline", "conversion", 12, "One clear main headline",
-      h1s.length === 1 && words(h1s[0]) >= 2 && words(h1s[0]) <= 14 ? 1 : h1s.length ? 0.5 : 0,
-      "Lead with a single, short headline (2–14 words) that says what you do and for whom.",
+    C("headline", "conversion", 10, "One clear main headline",
+      h1s.length === 1 && words(h1s[0]) >= 2 && words(h1s[0]) <= 12 ? 1 : h1s.length ? 0.5 : 0,
+      "Lead with a single, short headline (2–12 words) that says what you do and for whom.",
       h1s.length ? `Found ${h1s.length} main headline${h1s.length > 1 ? "s" : ""}: “${h1s[0].slice(0, 80)}”` : "No main headline (H1) found."),
-    C("cta", "conversion", 16, "Clear call-to-action buttons", step(ctas.length, [[3, 1], [2, 0.8], [1, 0.5]]),
+    C("cta", "conversion", 12, "Clear call-to-action buttons", step(ctas.length, [[3, 1], [2, 0.7], [1, 0.4]]),
       "Use action words on buttons — “Book a call”, “Get a quote”, “Shop now” — not “Submit” or “Learn more”.",
       `${ctas.length} action button${ctas.length === 1 ? "" : "s"} found${ctas[0] ? `, e.g. “${ctaLabel(ctas[0])}”` : ""}.`),
-    C("cta-early", "conversion", 10, "Call-to-action near the top", earlyCtas.length ? 1 : 0,
+    C("cta-early", "conversion", 8, "Call-to-action near the top", earlyCtas.length ? 1 : 0,
       "Put your main button in the first screen, so visitors don't have to scroll to act.",
       earlyCtas.length ? "There's an action button early on the page." : "No action button in the top quarter of the page."),
-    C("contact", "conversion", 12, "Easy ways to get in touch", step(contactTypes, [[2, 1], [1, 0.6]]),
-      "Offer at least two ways to reach you — a form plus WhatsApp, phone or email.",
+    C("sticky-cta", "conversion", 4, "Always-visible way to act", stickyCta ? 1 : 0,
+      "Keep a button or WhatsApp bubble on screen while people scroll, so acting is one tap away.",
+      stickyCta ? "A sticky header button or floating chat was found." : "No sticky button or floating chat."),
+    C("contact", "conversion", 8, "Easy ways to get in touch", step(contactTypes, [[3, 1], [2, 0.7], [1, 0.4]]),
+      "Offer several ways to reach you — a form plus WhatsApp, phone or email.",
       `Found: ${Object.entries(hasContact).filter(([, v]) => v).map(([k]) => k).join(", ") || "none"}.`),
-    C("proof", "conversion", 14, "Social proof", step(proofHits, [[3, 1], [2, 0.75], [1, 0.45]]),
-      "Show reviews, client logos, ratings or case studies — proof sells better than promises.",
+    C("proof", "conversion", 10, "Social proof", step(proofHits, [[3, 1], [2, 0.6], [1, 0.3]]),
+      "Show reviews, client logos, ratings and case studies — proof sells better than promises.",
       `${proofHits} kind${proofHits === 1 ? "" : "s"} of proof found (reviews, ratings, client mentions…).`),
-    C("lead-form", "conversion", 10, "Short lead capture form",
-      leadForms.length ? (inputsIn(leadForms[0]) <= 6 ? 1 : 0.5) : forms.length ? 0.3 : 0,
+    C("named-proof", "conversion", 6, "Reviews from real, named people", namedProof ? 1 : 0,
+      "Put a name, role, company or photo on every testimonial — anonymous praise reads as made up.",
+      namedProof ? "Testimonials carry names or attribution." : "No named or attributed testimonials found."),
+    C("lead-form", "conversion", 8, "Short lead capture form",
+      leadForms.length ? (inputsIn(leadForms[0]) <= 5 ? 1 : 0.5) : forms.length ? 0.3 : 0,
       "Capture emails with a short form — every extra field loses people. Aim for 3–5 fields.",
       leadForms.length ? `Email form with ${inputsIn(leadForms[0])} field${inputsIn(leadForms[0]) === 1 ? "" : "s"}.` : forms.length ? "There's a form, but it doesn't ask for an email." : "No form on the page."),
-    C("value-prop", "conversion", 8, "Search & share description", metaDesc.length >= 50 && metaDesc.length <= 170 ? 1 : metaDesc ? 0.5 : 0,
+    C("pricing", "conversion", 6, "Price or “starting from” shown", pricing ? 1 : 0,
+      "Show a price, a “starting from” or packages. Visitors who can't gauge cost often just leave.",
+      pricing ? "Pricing information found." : "No prices or packages mentioned."),
+    C("faq", "conversion", 5, "Answers common objections", faq ? 1 : 0,
+      "Add a short FAQ that handles doubts about price, time and process before they stop a sale.",
+      faq ? "FAQ section found." : "No FAQ section."),
+    C("value-prop", "conversion", 5, "Search & share description", metaDesc.length >= 50 && metaDesc.length <= 160 ? 1 : metaDesc ? 0.5 : 0,
       "Write a 50–160 character page description — it's your pitch in Google results and link previews.",
       metaDesc ? `${metaDesc.length} characters: “${metaDesc.slice(0, 90)}${metaDesc.length > 90 ? "…" : ""}”` : "No meta description."),
-    C("trust", "conversion", 8, "Trust basics", (https ? 0.6 : 0) + (privacy ? 0.4 : 0),
+    C("share-image", "conversion", 4, "Eye-catching link previews", ogImage ? 1 : 0,
+      "Add a share image (og:image) so links on WhatsApp, LinkedIn and Instagram show a picture, not a blank card.",
+      ogImage ? "Share image set." : "No share image, so links look plain when shared."),
+    C("rich-results", "conversion", 4, "Ready for rich Google results", schema ? 1 : 0,
+      "Add structured data (schema.org) so Google can show your stars, FAQs, prices or opening hours.",
+      schema ? "Structured data found." : "No structured data."),
+    C("trust", "conversion", 5, "Trust basics", (https ? 0.6 : 0) + (privacy ? 0.4 : 0),
       "Serve the site over HTTPS and link a privacy policy — browsers and buyers both look for it.",
       `${https ? "HTTPS ✓" : "No HTTPS"} · ${privacy ? "privacy/terms link ✓" : "no privacy policy link"}`),
-    C("response", "conversion", 10, "Fast server response", firstByteMs == null ? 0.5 : step(-firstByteMs, [[-600, 1], [-1200, 0.7], [-2500, 0.35]]),
-      "Slow first responses lose visitors before they see anything. Use good hosting or a CDN.",
-      firstByteMs == null ? "Couldn't time it." : `First response in ${firstByteMs} ms.`),
+    C("tracking", "conversion", 5, "Measures what works", tracking ? 1 : 0,
+      "Install analytics and an ad pixel. Without them you can't tell which pages or ads bring customers.",
+      tracking ? "Analytics or an ad pixel found." : "No analytics or ad pixel detected."),
 
     // ---------------- User-friendly (100) ----------------
-    C("mobile", "ux", 16, "Mobile-ready", /width\s*=\s*device-width/i.test(viewport) ? 1 : viewport ? 0.4 : 0,
+    C("mobile", "ux", 14, "Mobile-ready", /width\s*=\s*device-width/i.test(viewport) ? 1 : viewport ? 0.4 : 0,
       "Add a responsive viewport tag and design for phones first — most visitors are on mobile.",
       viewport ? "Responsive viewport tag found." : "No viewport tag, so phones show a zoomed-out desktop page."),
-    C("weight", "ux", 10, "Lightweight page", step(-bytes, [[-150_000, 1], [-400_000, 0.6], [-1_000_000, 0.3]]),
+    C("response", "ux", 10, "Fast server response", firstByteMs == null ? 0.5 : step(-firstByteMs, [[-400, 1], [-900, 0.6], [-2000, 0.3]]),
+      "Slow first responses lose visitors before they see anything. Use good hosting or a CDN.",
+      firstByteMs == null ? "Couldn't time it." : `First response in ${firstByteMs} ms.`),
+    C("weight", "ux", 8, "Lightweight page", step(-bytes, [[-100_000, 1], [-300_000, 0.6], [-800_000, 0.3]]),
       "Keep the HTML lean; heavy pages are slow on mobile data.",
       `HTML is ${Math.round(bytes / 1024)} KB.`),
-    C("scripts", "ux", 8, "Not overloaded with scripts", step(-scripts, [[-15, 1], [-30, 0.5], [-60, 0.2]]),
+    C("scripts", "ux", 7, "Not overloaded with scripts", step(-scripts, [[-12, 1], [-25, 0.5], [-50, 0.2]]),
       "Each extra script slows the page. Remove unused plugins, trackers and widgets.",
       `${scripts} script tag${scripts === 1 ? "" : "s"}.`),
-    C("alt", "ux", 12, "Images described for everyone", imgs.length ? imgsWithAlt.length / imgs.length : 1,
+    C("alt", "ux", 10, "Images described for everyone", imgs.length ? imgsWithAlt.length / imgs.length : 1,
       "Give every image alt text — it helps screen readers and Google Images.",
       imgs.length ? `${imgsWithAlt.length} of ${imgs.length} images have alt text.` : "No images to check."),
-    C("structure", "ux", 10, "Clear page structure", (h1s.length === 1 ? 0.5 : h1s.length ? 0.25 : 0) + (h2s.length >= 2 ? 0.5 : h2s.length ? 0.25 : 0),
+    C("lazy", "ux", 6, "Images load as you scroll", imgs.length <= 3 ? 1 : step(lazyImgs / imgs.length, [[0.3, 1], [0.01, 0.5]]),
+      "Add loading=\"lazy\" to images further down the page so the first screen appears faster.",
+      imgs.length <= 3 ? "Few images, nothing to defer." : `${lazyImgs} of ${imgs.length} images load lazily.`),
+    C("structure", "ux", 9, "Clear page structure", (h1s.length === 1 ? 0.5 : h1s.length ? 0.25 : 0) + (h2s.length >= 3 ? 0.5 : h2s.length ? 0.25 : 0),
       "Use one H1 and section headings (H2s) so people can scan and Google understands the page.",
       `${h1s.length} H1, ${h2s.length} H2 heading${h2s.length === 1 ? "" : "s"}.`),
-    C("nav", "ux", 10, "Easy navigation", step(navLinks, [[3, 1], [1, 0.5]]),
+    C("nav", "ux", 8, "Easy navigation", step(navLinks, [[3, 1], [1, 0.5]]),
       "Give visitors a simple menu (3–7 links) so they can find what they need.",
       `${navLinks} menu link${navLinks === 1 ? "" : "s"}.`),
-    C("title", "ux", 8, "Descriptive page title", title.length >= 10 && title.length <= 65 ? 1 : title ? 0.5 : 0,
+    C("title", "ux", 7, "Descriptive page title", title.length >= 10 && title.length <= 60 ? 1 : title ? 0.5 : 0,
       "Write a 10–60 character title with your brand and what you do — it shows on tabs and in Google.",
       title ? `“${title.slice(0, 70)}” (${title.length} characters)` : "No page title."),
-    C("labels", "ux", 8, "Labelled form fields", fields.length ? labelled.length / fields.length : 1,
+    C("labels", "ux", 7, "Labelled form fields", fields.length ? labelled.length / fields.length : 1,
       "Label every form field so people (and screen readers) know what to type.",
       fields.length ? `${labelled.length} of ${fields.length} fields are labelled.` : "No form fields to check."),
-    C("content", "ux", 6, "Enough helpful content", step(wordCount, [[250, 1], [100, 0.5]]),
+    C("content", "ux", 6, "Enough helpful content", step(wordCount, [[300, 1], [120, 0.5]]),
       "Explain what you offer in plain words; very thin pages leave visitors guessing.",
       `About ${wordCount} words of readable text.`),
-    C("lang", "ux", 6, "Language set", lang ? 1 : 0, "Set the page language (<html lang=\"en\">) for screen readers and translation.",
+    C("lang", "ux", 4, "Language set", lang ? 1 : 0, "Set the page language (<html lang=\"en\">) for screen readers and translation.",
       lang ? `Language: ${lang}.` : "No language set."),
-    C("favicon", "ux", 6, "Browser tab icon", favicon ? 1 : 0, "Add a favicon so your tab is recognisable and the site feels finished.",
+    C("favicon", "ux", 4, "Browser tab icon", favicon ? 1 : 0, "Add a favicon so your tab is recognisable and the site feels finished.",
       favicon ? "Favicon found." : "No favicon."),
 
     // ---------------- Creativity (100) ----------------
@@ -204,10 +240,10 @@ function analyze({ html, css = "", url, https, firstByteMs, bytes }) {
 }
 
 function band(n) {
-  if (n >= 85) return { name: "Fresh-cut", note: "This site is in great shape. A few tweaks could still squeeze out more." };
-  if (n >= 70) return { name: "Juicy", note: "Solid foundations, with clear wins left on the table." };
-  if (n >= 50) return { name: "Getting ripe", note: "Good bones, but visitors are slipping through the gaps." };
-  return { name: "Needs juice", note: "There's a lot of easy upside here — this site could be working much harder." };
+  if (n >= 85) return { tier: "top", name: "Fresh-cut", note: "You're ahead of most websites. What's left is what separates good from great — and that's where the real growth is." };
+  if (n >= 70) return { tier: "good", name: "Juicy", note: "Good bones. A handful of fixes stand between you and a site that sells on autopilot." };
+  if (n >= 50) return { tier: "mid", name: "Getting ripe", note: "Visitors are slipping through the gaps. The fixes below are your quickest wins." };
+  return { tier: "low", name: "Needs juice", note: "You're losing visitors here. The good news: most of these fixes are fast." };
 }
 
 module.exports = { analyze, PILLAR_WEIGHTS };

@@ -117,3 +117,14 @@
 }
 @media (max-width: 520px) { .sc-lead { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .sc-melon { animation-duration: 3s; } .sc-pillar .bar i { transition: none; } }
+
+/* ---------- What a scan can't see ---------- */
+.sc-unseen { margin: 0 0 48px; padding: clamp(20px, 3vw, 32px); border: 1px dashed var(--line); border-radius: 20px; }
+.sc-unseen > .mono { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--primary); margin: 0 0 14px; }
+.sc-unseen ul { list-style: none; padding: 0; margin: 0 0 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.sc-unseen li { color: var(--muted-fg); font-size: 15px; }
+.sc-unseen li b { display: block; color: var(--fg); font-weight: 500; margin-bottom: 4px; }
+.sc-unseen > p:last-child { margin: 0; color: var(--muted-fg); font-size: 14px; }
+.sc-cta { margin: 0 0 24px; }
+.sc-cta-top { border-color: var(--primary); }
+@media (max-width: 860px) { .sc-unseen ul { grid-template-columns: 1fr; } }
