@@ -711,3 +711,26 @@ h2 { font-size: clamp(40px, 6.6vw, 80px); line-height: 1; }
 .cut-big { font-size: clamp(40px, 6.6vw, 104px); line-height: 1; }
 .cta-strip h2 { font-size: clamp(34px, 4.4vw, 62px); }
 @media (max-width: 860px) { .cut-scroll .hero-title { font-size: clamp(40px, 10.5vw, 56px); } }
+
+/* ---------- Ad creatives: two rows sliding in opposite directions ---------- */
+.creatives .section-head { align-items: flex-end; }
+.creatives .section-note { max-width: 340px; }
+.marquee { display: grid; gap: clamp(14px, 1.6vw, 24px); overflow: hidden; padding: 4px 0; }
+.marquee-row { overflow: hidden; }
+.marquee-track {
+  display: flex; gap: clamp(14px, 1.6vw, 24px); width: max-content;
+  animation: marquee 48s linear infinite;
+}
+.marquee-reverse .marquee-track { animation-direction: reverse; animation-duration: 54s; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee figure { margin: 0; flex: none; height: clamp(240px, 30vw, 440px); border-radius: clamp(16px, 1.6vw, 24px); overflow: hidden; background: #121110; }
+.marquee img { height: 100%; width: auto; transition: transform .6s var(--ease); }
+.marquee figure:hover img { transform: scale(1.04); }
+/* the track holds every creative twice, so moving it by half its width (plus half a gap) loops seamlessly */
+@keyframes marquee { to { transform: translateX(calc(-50% - clamp(14px, 1.6vw, 24px) / 2)); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-row { overflow-x: auto; scrollbar-width: none; }
+  .marquee-track { animation: none; }
+  .marquee figure[aria-hidden="true"] { display: none; }
+}

@@ -253,3 +253,13 @@
   /* ---------- Footer year ---------- */
   $("#year").textContent = new Date().getFullYear();
 })();
+
+/* ---------- Ad creatives: repeat each row so the loop never shows a gap on wide screens ---------- */
+document.querySelectorAll(".marquee-track").forEach((track) => {
+  [...track.children].forEach((item) => {
+    const copy = item.cloneNode(true);
+    copy.setAttribute("aria-hidden", "true");
+    copy.querySelectorAll("img").forEach((img) => (img.alt = ""));
+    track.appendChild(copy);
+  });
+});
